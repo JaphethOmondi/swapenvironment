@@ -1,2 +1,2 @@
 # swapenvironment
-This is a environment for the swapguard project
+This is an environment for the swapguard project

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Swap initiated{% endblock %}
+{% block content %}
+<div class="alert alert-success mt-4">
+  <h5 class="mb-1"><i class="bi bi-check-circle"></i> Swap #{{ swap.id }} recorded as PENDING</h5>
+  <p class="mb-0">Subscriber {{ swap.phone_masked }} · expires in {{ swap.seconds_left }}s · never auto-approved.</p>
+</div>
+<div class="consent-box">
+  <h5><i class="bi bi-chat-dots"></i> SMS nudge {% if nudge and nudge.simulated %}(simulated){% endif %}</h5>
+  {% if nudge %}
+  <p class="text-muted" style="font-size:.9rem;">{{ nudge.body }}</p>
+  <p class="text-muted small">Sent to {{ nudge.phone_masked }} at {{ nudge.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+    {% if nudge.error %}<span class="text-danger">— error: {{ nudge.error }}</span>{% endif %}</p>
+  {% endif %}
+  <hr>
+  <p class="text-muted mb-3">The subscriber dials <strong>{{ ussd_code }}</strong> on their own handset to respond.
+    Without a physical phone here, simulate that dial-in — it drives the same <code>/ussd</code> logic
+    Africa's Talking would call.</p>
+  <div class="text-center">
+    <a href="{{ url_for('ussd.simulator', swap_id=swap.id) }}" class="btn btn-primary btn-lg">
+      <i class="bi bi-phone"></i> Simulate subscriber dialling in
+    </a>
+  </div>
+  <hr>
+  <div class="text-center">
+    <a href="{{ url_for('agent.portal') }}" class="btn btn-outline-secondary">New swap</a>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">Swaps</a>
+  </div>
+</div>
+{% endblock %}

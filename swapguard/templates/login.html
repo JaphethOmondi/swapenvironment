@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5">
+    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+    <div class="card">
+      <div class="card-header brand"><i class="bi bi-person-badge"></i> Agent sign-in</div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label">Agent code</label>
+            <input name="agent_code" class="form-control" required autofocus autocomplete="username">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input name="password" type="password" class="form-control" required autocomplete="current-password">
+          </div>
+          <button class="btn btn-primary w-100">Sign in</button>
+        </form>
+      </div>
+    </div>
+    <p class="text-muted small text-center mt-3">
+      Agent accounts are created by an administrator via <code>flask create-agent</code>.
+    </p>
+  </div>
+</div>
+{% endblock %}

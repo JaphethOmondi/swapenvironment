@@ -1,0 +1,22 @@
+# Virtual environment and caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets and local config
+.env
+*.pem
+*.key
+
+# Databases (contain real accounts and password hashes)
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store

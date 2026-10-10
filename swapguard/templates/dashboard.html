@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Swaps{% endblock %}
+{% block content %}
+<div class="row mb-4 mt-3">
+  <div class="col-md-3"><div class="stat-card text-center"><h4>{{ stats.total }}</h4><small class="text-muted">Total</small></div></div>
+  <div class="col-md-3"><div class="stat-card text-center"><h4 class="status-pending">{{ stats.pending }}</h4><small class="text-muted">Pending</small></div></div>
+  <div class="col-md-3"><div class="stat-card text-center"><h4 class="status-allowed">{{ stats.allowed }}</h4><small class="text-muted">Allowed</small></div></div>
+  <div class="col-md-3"><div class="stat-card text-center"><h4 class="status-blocked">{{ stats.blocked }}</h4><small class="text-muted">Blocked</small></div></div>
+</div>
+<div class="card">
+  <div class="card-header brand"><i class="bi bi-list-ul"></i> Swap requests</div>
+  <div class="card-body">
+    {% if not swaps %}
+      <p class="text-muted mb-0">No swaps recorded yet. <a href="{{ url_for('agent.portal') }}">Initiate one</a>.</p>
+    {% else %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead><tr><th>ID</th><th>Subscriber</th><th>Agent</th><th>Status</th><th>Created</th><th></th></tr></thead>
+        <tbody>
+        {% for s in swaps %}
+          <tr>
+            <td><strong>#{{ s.id }}</strong></td>
+            <td>{{ s.phone_masked }}</td>
+            <td>{{ s.agent.agent_code }}</td>
+            <td>
+              {% if s.status.value == 'PENDING' %}<span class="badge bg-warning text-dark">PENDING</span>
+              {% elif s.status.value == 'ALLOWED' %}<span class="badge bg-success">ALLOWED</span>
+              {% else %}<span class="badge bg-danger">BLOCKED</span>{% endif %}
+              {% if s.auto_expired %}<span class="badge bg-secondary" title="No response — fail-closed"><i class="bi bi-clock-history"></i> timeout</span>{% endif %}
+              {% if s.decision_source and s.decision_source.value == 'PIN_LOCKOUT' %}<span class="badge bg-dark">PIN lockout</span>{% endif %}
+            </td>
+            <td>{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>
+              {% if s.status.value == 'PENDING' %}
+                <a href="{{ url_for('ussd.simulator', swap_id=s.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-phone"></i></a>
+              {% else %}<span class="text-muted">—</span>{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<div class="text-center mt-3">
+  <a href="{{ url_for('agent.portal') }}" class="btn btn-primary">New swap</a>
+  <button onclick="location.reload()" class="btn btn-outline-secondary">Refresh</button>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}USSD simulator{% endblock %}
+{% block content %}
+<div class="text-center mt-4 mb-4">
+  <h4>Subscriber handset — USSD simulator</h4>
+  <p class="text-muted">Stands in for a phone dialling {{ ussd_code }}. Every keypress hits the real <code>/ussd</code> menu logic.</p>
+</div>
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div id="term" style="flex:1;padding:18px 16px;color:#8CFF9B;font-family:'Courier New',monospace;font-size:.85rem;white-space:pre-wrap;overflow-y:auto;">Dialling…</div>
+        <div style="padding:10px 12px 16px;border-top:1px solid #222;">
+          <form id="f" style="display:flex;gap:8px;">
+            <input id="inp" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="1, 2 or PIN"
+              style="flex:1;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:8px;padding:8px 10px;font-family:'Courier New',monospace;">
+            <button class="btn btn-primary btn-sm" type="submit">Send</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-3">
+      <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary btn-sm">View swaps</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function(){
+  var id={{ swap.id }},term=document.getElementById('term'),
+      f=document.getElementById('f'),inp=document.getElementById('inp'),
+      acc='',ended=false;
+  function render(b){
+    term.textContent=b.replace(/^CON |^END /,'');
+    if(b.indexOf('END')===0){ended=true;inp.disabled=true;f.querySelector('button').disabled=true;}
+  }
+  function step(v){
+    // AT sends the full accumulated keypress string, joined with '*'.
+    acc = (v===null) ? '' : (acc ? acc+'*'+v : v);
+    fetch('/ussd-sim/'+id+'/step',{method:'POST',body:new URLSearchParams({text:acc})})
+      .then(function(r){return r.text();}).then(render);
+  }
+  f.addEventListener('submit',function(e){
+    e.preventDefault(); if(ended) return;
+    var v=inp.value.trim(); if(!v) return; inp.value=''; step(v);
+  });
+  step(null);
+})();
+</script>
+{% endblock %}

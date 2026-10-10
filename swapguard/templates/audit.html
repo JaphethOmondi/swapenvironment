@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Audit trail{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+  <h4>Append-only audit trail</h4>
+  <p class="text-muted mb-0">Every state transition, with actor and timestamp. Rows cannot be edited or
+  deleted — enforced at the ORM layer and by a database trigger on Postgres.</p>
+</div>
+<div class="card">
+  <div class="card-header brand">Recent events (latest 200)</div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm table-hover align-middle mb-0">
+        <thead><tr><th>Time (UTC)</th><th>Event</th><th>Actor</th><th>Swap</th><th>Detail</th></tr></thead>
+        <tbody>
+        {% for e in events %}
+          <tr>
+            <td><small>{{ e.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small></td>
+            <td><code>{{ e.event_type }}</code></td>
+            <td>{{ e.actor }}</td>
+            <td>{% if e.swap_id %}#{{ e.swap_id }}{% else %}—{% endif %}</td>
+            <td><small class="text-muted">{{ e.detail or '' }}</small></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="text-muted">No events yet.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

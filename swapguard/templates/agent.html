@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Initiate swap{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-md-6">
+    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+    <div class="card">
+      <div class="card-header brand"><i class="bi bi-person-badge"></i> Initiate SIM swap</div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label">Subscriber phone number</label>
+            <input name="phone" class="form-control" placeholder="07XXXXXXXX"
+                   required pattern="^0(7|1)[0-9]{8}$" value="{{ phone or '' }}">
+            <small class="text-muted">Format: 07XXXXXXXX or 01XXXXXXXX</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Requesting agent</label>
+            <input class="form-control" value="{{ current_user.agent_code }} — {{ current_user.display_name }}" disabled>
+            <small class="text-muted">Taken from your signed-in session; it cannot be selected.</small>
+          </div>
+          <button class="btn btn-primary w-100"><i class="bi bi-send"></i> Initiate swap</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

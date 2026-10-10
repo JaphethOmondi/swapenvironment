@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: swapguard
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: swapguard
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swapguard"]
+      interval: 5s
+      retries: 10
+
+  web:
+    build: .
+    env_file: .env
+    environment:
+      FLASK_ENV: production
+      DATABASE_URL: postgresql://swapguard:${POSTGRES_PASSWORD:-changeme}@db:5432/swapguard
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "alembic upgrade head &&
+             gunicorn -w 4 -b 0.0.0.0:8000 --access-logfile - wsgi:app"
+
+  # Separate process so the fail-closed sweep runs on schedule regardless
+  # of web traffic, and so scaling web workers doesn't multiply sweeps.
+  worker:
+    build: .
+    env_file: .env
+    environment:
+      FLASK_ENV: production
+      DATABASE_URL: postgresql://swapguard:${POSTGRES_PASSWORD:-changeme}@db:5432/swapguard
+    depends_on:
+      db:
+        condition: service_healthy
+    command: python worker.py
+
+volumes:
+  pgdata:
